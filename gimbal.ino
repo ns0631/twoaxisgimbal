@@ -12,14 +12,15 @@ int iter = 0;
 Servo rollServo;
 Servo pitchServo;
 
-static float Kp = 2.5e-2;          // (P)roportional Tuning Parameter
+static float Kp = 4.5e-2;          // (P)roportional Tuning Parameter
 static float Ki = 0;          // (I)ntegral Tuning Parameter
-static float Kd = 1e-9;          // (D)erivative Tuning Parameter
-float integral = 0;       // Used to accumulate error (integral)
-static float maxPID = 5;    // The maximum value that can be output
+static float Kd = 5e-5;          // (D)erivative Tuning Parameter
 
-float oldPitch = 0;
-float oldRoll = 0;
+float pitchIntegral = 0;       // Used to accumulate error (integral)
+float rollIntegral = 0;
+
+float oldPitchError = 0;
+float oldRollError = 0;
 float targetPitch = 0;
 float targetRoll = 90;
 
@@ -29,23 +30,19 @@ float dt;
 
 float pidPitch(float current, float dt) {
 	float error = targetPitch - current;
-	integral += error * dt;
-	float derivative = (current - oldPitch) / dt;
-	oldPitch = current;
-	float result = (error * Kp) + (integral * Ki) + (derivative * Kd);
-	if (result > maxPID) result = maxPID;
-	else if (result < -maxPID) result = -maxPID;
+	pitchIntegral += error * dt;
+	float derivative = (error - oldPitchError) / dt;
+	oldPitchError = error;
+	float result = (error * Kp) + (pitchIntegral * Ki) + (derivative * Kd);
 	return result;
 }
 
 float pidRoll(float current, float dt) {
 	float error = targetRoll - current;
-	integral += error * dt;
-	float derivative = (current - oldPitch) / dt;
-	oldPitch = current;
-	float result = (error * Kp) + (integral * Ki) + (derivative * Kd);
-	if (result > maxPID) result = maxPID;
-	else if (result < -maxPID) result = -maxPID;
+	rollIntegral += error * dt;
+	float derivative = (error - oldRollError) / dt;
+	oldRollError = error;
+	float result = (error * Kp) + (rollIntegral * Ki) + (derivative * Kd);
 	return result;
 }
 
@@ -111,10 +108,10 @@ void loop() {
   int pitchPulse = pidToPulse(-pitchPIDOutput);
   int rollPulse = pidToPulse(-rollPIDOutput);
 
-  if(iter % 300 == 0){
-    Serial.print("roll = "); Serial.print( roll_measurement );
+  if(iter % 250 == 0){
+    /*Serial.print("roll = "); Serial.print( roll_measurement );
     Serial.print(" | pitch = "); Serial.print( pitch_measurement );
-    Serial.println();
+    Serial.print(" | yaw = "); Serial.println( yaw_measurement );
 
     Serial.print("roll PID output = "); Serial.print( rollPIDOutput );
     Serial.print(" | pitch PID output = "); Serial.print( pitchPIDOutput );
@@ -122,7 +119,8 @@ void loop() {
 
     Serial.print("roll pulse = "); Serial.print( rollPulse );
     Serial.print(" | pitch pulse = "); Serial.print( pitchPulse );
-    Serial.println();
+    Serial.println();*/
+    Serial.println( yaw_measurement );
   }
 
   //pitchServo.writeMicroseconds( (int) ( 1500 + pitch_measurement / 90. * 500) );
