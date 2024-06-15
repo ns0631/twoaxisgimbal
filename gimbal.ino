@@ -50,9 +50,9 @@ int pidToPulse(float pid){
   int pulse;
 
   if(pid > 0){
-    pulse = (int) (1550. + 450. * pid / 5.);
+    pulse = (int) (1530. + 470. * pid / 5.);
   } else{
-    pulse = (int) (1450. + 450. * pid / 5.);
+    pulse = (int) (1470. + 470. * pid / 5.);
   }
 
   if(pulse > 2000){
@@ -105,11 +105,11 @@ void loop() {
   float pitchPIDOutput = pidPitch(pitch_measurement, dt);
   float rollPIDOutput = pidRoll(roll_measurement, dt);
 
-  int pitchPulse = pidToPulse(-pitchPIDOutput);
+  int pitchPulse = pidToPulse(pitchPIDOutput);
   int rollPulse = pidToPulse(-rollPIDOutput);
 
   if(iter % 250 == 0){
-    /*Serial.print("roll = "); Serial.print( roll_measurement );
+    Serial.print("roll = "); Serial.print( roll_measurement );
     Serial.print(" | pitch = "); Serial.print( pitch_measurement );
     Serial.print(" | yaw = "); Serial.println( yaw_measurement );
 
@@ -119,8 +119,8 @@ void loop() {
 
     Serial.print("roll pulse = "); Serial.print( rollPulse );
     Serial.print(" | pitch pulse = "); Serial.print( pitchPulse );
-    Serial.println();*/
-    Serial.println( yaw_measurement );
+    Serial.println();
+    //Serial.println( yaw_measurement );
   }
 
   //pitchServo.writeMicroseconds( (int) ( 1500 + pitch_measurement / 90. * 500) );
